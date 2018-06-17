@@ -23,7 +23,8 @@ function connect(){
   //BLE setup. Connect and get service/characteristic notifications
   navigator.bluetooth.requestDevice(
     {
-      filters: [{ services: [service] }]
+      acceptAllDevices: true;
+      // filters: [{ services: [service] }]
     })
   .then(device => {
     console.log('> Found ' + device.name);
