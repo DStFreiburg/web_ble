@@ -25,7 +25,7 @@ function connect(){
   navigator.bluetooth.requestDevice(
     {
       acceptAllDevices: true,
-      optionalServices: [0xBEEF]
+      optionalServices: optionalServices
       // filters: [{ services: [service] }]
     })
   .then(device => {
@@ -38,11 +38,11 @@ function connect(){
   })
   .then(server => {
     console.log('Getting Service 0xBEEF - Test...');
-    return server.getPrimaryService(service);
+    return server.getPrimaryService();
   })
   .then(service => {
     console.log('Getting Characteristic 0xFEED - Test...');
-    return service.getCharacteristic(characteristic);
+    return service.getCharacteristic();
   })
   .then(characteristic => {
     console.log('All ready!');
