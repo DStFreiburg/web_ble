@@ -1,21 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Arduino/Genuino 101 CurieIMU Web Bluetooth Orientation Visualiser</title>
-	<style>
-		body{
-			font-family: Helvetica;
-			text-align:center;
-		}
-		ol{
-			width:400px;
-			text-align:left;
-			margin:0 auto;
-		}
-	</style>
+    <title>Web BLE Test</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="styles.css" />
+	<link rel="manifest" href="manifest.json" />
+
+    <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
 </head>
+
+
 <body>
-	<h1>Arduino/Genuino 101 CurieIMU Web Bluetooth Orientation Visualiser</h1>
+
+  <div class="app-layout mdl-layout mdl-js-layout">
+
+    <main class="mdl-layout__content">
+
+        <h3>Web Light Bulb</h3>
+
+        <button onclick="connect()" class="connect-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                <i class="material-icons">bluetooth</i> Connect
+        </button>
+
+        <button onclick="reset()" class="connect-button mdl-button mdl-js-button mdl-button--raised mdl-button--colored">
+                <i class="material-icons">bluetooth</i> Reset
+        </button>
+
 	<script>
 		//BLE
 		let service        	= 0xBEEF;
@@ -24,33 +38,60 @@
 		//IMU global vars for processing
 		let rate   = 0;
 
+    let poweredOn = false;
+    let featherCharacteristic = null;
+
 		window.onload = () => {
-			document.getElementById('connect').onclick = connectBLE;
-		}
-		function connectBLE(){
+
+    function onConnected() {
+      document.querySelector('.connect-button').classList.add('hidden');
+      document.querySelector('.color-buttons').classList.remove('hidden');
+      document.querySelector('.mic-button').classList.remove('hidden');
+      document.querySelector('.power-button').classList.remove('hidden');
+      poweredOn = true;
+    }
+
+		function connect(){
 			//BLE setup. Connect and get service/characteristic notifications
-			navigator.bluetooth.requestDevice({ filters: [{ services: [service] }] })
+			navigator.bluetooth.requestDevice(
+        {
+          filters: [{ services: [service] }]
+        })
 			.then(device => {
-        console.log(device.name);
+        console.log('> Found ' + device.name);
+        console.log('Connecting to GATT Server...');
+        device.addEventListener('gattserverdisconnected', onDisconnected)
         return device.gatt.connect();
       })
 			.then(server => {
+        console.log('Getting Service 0xBEEF - Test...');
         return server.getPrimaryService(service);
       })
 			.then(service => {
+        console.log('Getting Characteristic 0xFEED - Test...');
         return service.getCharacteristic(characteristic);
       })
 			.then(characteristic => {
-        var reset = Uint8Array.of(1);
+        console.log('All ready!');
+        featherCharacteristic = characteristic;
 				return characteristic.readValue();
-        return characteristic.writeValue(reset);
+        onConnected();
       })
 			.then(value => {
 					console.log('Value is ' + value.getUint8(0));
 			})
-			.catch(error => { console.log(error); });
+			.catch(error => {
+        console.log('Argh! ' + error);
+      });
 
-		}
+
+      function reset() {
+        let data = new Uint8Array(1);
+        return featherCharacteristic.writeValue(data)
+          .catch(err => console.log('Error when writing value! ', err));
+      }
+
+      }
 	</script>
 </body>
 </html>
