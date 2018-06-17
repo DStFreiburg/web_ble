@@ -74,7 +74,6 @@
 			.then(characteristic => {
         console.log('All ready!');
         featherCharacteristic = characteristic;
-				return characteristic.readValue();
         onConnected();
       })
 			.then(value => {
