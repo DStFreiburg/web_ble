@@ -9,6 +9,7 @@ let rate   = 0;
 
 let poweredOn = false;
 let featherCharacteristic = null;
+var bluetoothDevice;
 
 
 function onConnected() {
@@ -28,6 +29,7 @@ function connect(){
       // filters: [{ services: [service] }]
     })
   .then(device => {
+    bluetoothDevice = device;
     console.log('> Found ' + device.name);
     console.log('Connecting to GATT Server...');
     device.addEventListener('gattserverdisconnected', onDisconnected)
@@ -58,4 +60,16 @@ function reset() {
     let data = new Uint8Array(1);
     return featherCharacteristic.writeValue(data)
       .catch(err => console.log('Error when writing value! ', err));
+}
+
+function disconnectButton() {
+  if (!bluetoothDevice) {
+    return;
+  }
+  log('Disconnecting from Bluetooth Device...');
+  if (bluetoothDevice.gatt.connected) {
+    bluetoothDevice.gatt.disconnect();
+  } else {
+    log('> Bluetooth Device is already disconnected');
+  }
 }
