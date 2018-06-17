@@ -32,8 +32,9 @@ function connect(){
     bluetoothDevice = device;
     console.log('> Found ' + device.name);
     console.log('Connecting to GATT Server...');
-    device.addEventListener('gattserverdisconnected', onDisconnected)
-    return device.gatt.connect();
+    bluetoothDevice.addEventListener('gattserverdisconnected', onDisconnected);
+    console.log('Connecting to Bluetooth Device...');
+    return bluetoothDevice.gatt.connect();
   })
   .then(server => {
     console.log('Getting Service 0xBEEF - Test...');
@@ -66,10 +67,10 @@ function disconnectButton() {
   if (!bluetoothDevice) {
     return;
   }
-  log('Disconnecting from Bluetooth Device...');
+  console.log('Disconnecting from Bluetooth Device...');
   if (bluetoothDevice.gatt.connected) {
     bluetoothDevice.gatt.disconnect();
   } else {
-    log('> Bluetooth Device is already disconnected');
+    console.log('> Bluetooth Device is already disconnected');
   }
 }
